@@ -201,13 +201,6 @@ fork failed, pid:-1
 This means that her program forked 61 times. She realizes that xv6 kernel has an array of proc data structures of 
 size 64, but still she is confused: why did she fork only 61 times? Please explain why.  
 
-\if\answers1
-In xv6, process identifiers start with 1. When the system boots, the init process is created and it gets pid of 1, 
-	the process itself first runs the userinit code and then executes the \texttt{exec()} system call (\texttt{exec()} however, 
-	doesn't change the pid of the process). The init process creates shell that gets pid of 2. Alice then starts 
-	her forkbomb program that gets pid of 3. The first forked child gets pid of 4. Alice keeps forking until she 
-	uses all processes in the proc array, i.e., up until pid 64. 
-\fi
 
 
 \vfill
@@ -222,31 +215,6 @@ In xv6, process identifiers start with 1. When the system boots, the init proces
 \part[10] Alice quickly changes the size of the array to 4096, reboots, and runs her program again. How many times 
 she will be able to fork now? Explain your reasoning.  
 
-
-\if\answers1
-Each process consumes some number of physical pages, and eventually xv6 will run out of physical memory. To understand 
-	how long it will take you need to estimate a number of physical pages used for each new process. A process needs a page for 1) kernel stack, 2) text and data sections (one page), 
-	3) guard page, 4) stack page, 5) root of the page table page (page table directory), and N pages for page table pages. 
-	What is this N? Each process maps all memory from 0 to PHYSTOP, and a small BIOS region at the very top of the 
-	address space. One page table page maps 4MBs of virtual memory, so our formula is: (PHYSTOP + (size of BIOS area))/(4096*1024) = 56 + 7 = 63. Hence, the total 
-	pages for one fork is 5 + 63 = 68. 
-
-	Now lets estimate how much physical memory is available when Alice starts her first fork. The total number of pages on the allocators free list is PHYSTOP - kernel.end (we 
-	don't ask you to know the exact value kernel end, but a quick check with readelf is a bonus, it's 0x801154a8 virtual or 0x1154a8 physical, if we round it up to the next page it's 
-	0x116000). Then the system has a total of 57066 pages on the allocator list. When the system boots, each CPU creates a kernel page table, lets assume, Alice runs a 2 CPU system and 
-	all CPUs besides the first one need a page for the kernel stack. This means that 63x2 + 1 pages are used before the system starts the init process. Before the first child is forked, 
-	3 other processes are created: init, sh, and forkbomb, this is 68x3. The total number of pages used is 63x2 + 1 + 68x3 = 331, the total free pages left is 57066 - 331 = 56735. 
-
-	Now we have all the data to estimate how many times Alice's program will fork: 56735/68 = 834.
-
-\iffalse
-\begin{verbatim}
-forked pid:811
-forked pid:812
-fork failed, pid:-1
-\end{verbatim}
-\fi
-\fi
 
 \vfill
 
@@ -303,86 +271,22 @@ struct context {
 
 \vfill
 
-\if\answers1 
-
-The EIP is pushed on the stack when swtch() is called. Since it's pushed on the stack it's 
-accessible as part of the \texttt{struct context} data structure, and it will be restored 
-into the EIP hardware register when \texttt{swtch()} executes the \texttt{ret} instruction. 
-
-\fi
-
 
 \newpage
 	
 \part[3] How does the kernel EAX register gets saved and restored? 
-
-\if\answers1 
-
-	The kernel EAX register is a caller-saved register, if the function that calls \texttt{swtch()} uses this 
-	register after the \texttt{swtch()} invocation, it will push the register on the stack before invoking 
-	\texttt{swtch()} and will pop it after. 
-	
-\fi
-
-
-
 \vfill
 
 	
 \part[3] How does user-level EAX register gets saved and restored? 
-
-\if\answers1 
-
-	The user EAX is pushed on the kernel stack inside the \texttt{alltrap()}  function that pushes all registers 
-	on the kernel stack of the process. The register is accessible as part of the \texttt{trapframe} data 
-	structure. It is restored from the kernel stack on exit from the interrupt. 
-	
-\fi
-
-
 \vfill
 
 	
 \part[3] How does the kernel ESP register gets saved and restored? 
 
-\if\answers1 
-
-	The kernel ESP register is saved inside the \texttt{swtch()} function as a pointer to the context of currently running process, i.e., the following 
-	line
-	
-\begin{verbatim}
-# Switch stacks
-movl %esp, (%eax)
-\end{verbatim}
-
-saves ESP into \texttt{proc->context} making this pointer point to the top of the stack of the process 
-	that was running before the \texttt{swtch()} was invoked. 
-
-	It is restored with the following line that loads \texttt{proc->context} into ESP
-
-\begin{verbatim}
-movl %edx, %esp
-\end{verbatim}
-
-
-	
-\fi
-
-
-
 \vfill
 
 \part[3] How does user-level ESP register gets saved and restored? 
-
-\if\answers1 
-
-The user ESP pointer is saved as part of the interrupt transition (i.e., the hardware pushes 5 things 
-on the stack, when interrupt arrives and one of them is ESP). 
-
-It is restored with the \texttt{iret} instruction when execution returns into user-level. 
-\fi
-
-
 \vfill
 
 \end{parts}
@@ -403,26 +307,6 @@ It is restored with the \texttt{iret} instruction when execution returns into us
 \begin{verbatim}
 int read(int, void*, int);
 \end{verbatim} 
-
-\if\answers1 
-
-\begin{verbatim}
-|  3rd arg (int)    |  | stack growth direction
-|  2nd arg (void *) |  v
-|  1st arg (int)    |
-|  return addr      |
-\end{verbatim}
-
-User calls the \texttt{read()} function that internally invokes \texttt{int} instruction. 
-	The return address for that invocation is on the stack (note this function does not 
-	maintain the stack frame as it's automatically generated in the \texttt{usys.S} file). 
-	The arguments for the function
-	are pushed on the stack before invocation. 
-
-\fi
-
-
-
 \vfill
 
 \part[5] If the execution is inside a system call, e.g., inside the
@@ -436,13 +320,6 @@ User calls the \texttt{read()} function that internally invokes \texttt{int} ins
 
 \vfill
 
-\if\answers1 
-
-	System call number, which is accessible as \texttt{tf->trapno}. 
-
-\fi
-
-
 
 \end{parts}
 
@@ -455,35 +332,11 @@ User calls the \texttt{read()} function that internally invokes \texttt{int} ins
 	
 \part[5] How GDT is used in xv6, i.e., what role does it play in the system? 
 
-\if\answers1 
-
-Xv6 uses flat segment model, i.e., all code and data segemnts are 
-	configured with base 0x0, and the limit of 0xffffffff. Xv6 uses 
-	GDT for two purposes: 1) to ensure that user code runs with 
-	privilege level 3, and 2) to keep track of location of the kernel 
-	stack of currently running process (i.e., during the interrupt we don't 
-	trust user code to have a meaningful value of ESP, hence, the hardware 
-	fetches the kernel ESP from the TSS segment that points to the TSS table 
-	that has a pointer to the kernel stack. 
-
-\fi
-
-
-
 \vfill
 
 \part[5] How many global descriptor tables xv6 creates?
 
 \vfill
-
-\if\answers1 
-
-Xv6 creates one GDT per physical CPU. This is needed as each CPU may run a process, 
-and hence it needs a unique kernel stack if interrupt or a system call is executed on that CPU. 
-
-\fi
-
-
 
 \newpage
 
@@ -515,24 +368,6 @@ and hence it needs a unique kernel stack if interrupt or a system call is execut
 1881 }
 	
 \end{verbatim}
-
-\if\answers1 
-
-Every time xv6 switches between processes it updates the pointer to the 
-	kernel stack (each process has its own kernel stack) in the TSS table. 
-
-Line 1870 loads the TSS segment with the base of the address at which 
-\texttt{mycpu()->ts} is located. 
-
-Line 1873 configures the stack segment SS for CPL 0 to point to the kernel 
-data segment. 
-
-Line 1874 sets the kernel stack pointer in the TSS to point to the kernel stack 
-of the current process (\texttt{p->kstack + KSTACKSIZE}). 
-
-\fi
-
-
 \vfill
 
 
@@ -547,36 +382,14 @@ of the current process (\texttt{p->kstack + KSTACKSIZE}).
 \begin{parts} 
 	
 \part[5] Can an interrupt preempt execution of a system call, i.e., can the interrupt be delivered and processed why the system executes a system call (explain your answer)?
-
-
-\if\answers1 
-	Yes, xv6 configures vector 64 in the IDT (64 is used for system calls) to leave the interrupts enabled.
-\fi
-
 \vfill
 
 \part[5] Can an interrupt preempt execution of another interrupt (explain your answer)? 
-
-\if\answers1 
-No, xv6 configures all other vectors in the IDT besides 64 to disable interrupts on the interrupt transition. Xv6 never re-enables interrupts 
-	on the interrupt processing path (it will always use push and pop CLI). The only exception is a non-maskable interrupt that can be 
-	delivered even when interrupts are disabled. Xv6 however does not handle non-maskable interrupts (if it ends up running on the hardware 
-	that delivers an NMI it will panic inside the \texttt{trap()} function. 
-\fi
-
 \vfill
 
 \part[5] Xv6 creates a kernel stack for each process. Why can't we simply create one kernel stack per physical CPU?  
 
 \vfill
-
-\if\answers1 
-	Xv6 allows processes to sleep inside system calls. I.e., a process can enter the kernel with a system call, e.g., \texttt{read()} and yield execution 
-	to another process. Some state of the first process is still saved on the kernel stack of that process. 
-\fi
-
-
-
 \end{parts}
 
 

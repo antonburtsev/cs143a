@@ -132,14 +132,14 @@ Xv6 shell implements a pipe command (e.g., \texttt{ls | wc}) with the following 
 8657       close(p[0]);
 8658       close(p[1]);
            // point B
-8659       runcmd(pcmd−>left);
+8659       runcmd(pcmd->left);
 8660     }
 8661     if(fork1() == 0){
 8662       close(0);
 8663       dup(p[0]);
 8664       close(p[0]);
 8665       close(p[1]);
-8666       runcmd(pcmd−>right);
+8666       runcmd(pcmd->right);
 8667     }
 8668     close(p[0]);
 8669     close(p[1]);
@@ -154,34 +154,6 @@ A, B above.  Connections can be depicted with lines with arrows. The error is
 aligned with the direction of data flow, i.e., if the file is written the error
 points at the file object. 
 
-\iffalse
-
-Input device(keyboard): 
-
-\begin{figure}[h] 
-\includegraphics[width=0.1\columnwidth]{figs/keyboard}
-\label{fig:point-a}
-\end{figure}
-
-
-Output device(screen): 
-
-\begin{figure}[h] 
-\includegraphics[width=0.1\columnwidth]{figs/terminal}
-\label{fig:point-a}
-\end{figure}
-
-
-Pipe:
-
-\begin{figure}[h] 
-\includegraphics[width=0.1\columnwidth]{figs/pipe}
-\label{fig:point-a}
-\end{figure}
-
-\fi
-
-
 Hint: pay attention to close() dup() calls before and after the point
 
 
@@ -192,14 +164,14 @@ Hint: pay attention to close() dup() calls before and after the point
 \part[5] Point A
 
 \begin{figure}[h] 
-\includegraphics[width=0.5\columnwidth]{figs/point-a}
+\includegraphics[width=0.5\columnwidth]{figs/point-a-temp}
 \label{fig:point-a}
 \end{figure}
 
 \part[5] Point B
 
 \begin{figure}[h] 
-\includegraphics[width=0.8\columnwidth]{figs/point-b}
+\includegraphics[width=0.8\columnwidth]{figs/point-b-temp}
 \label{fig:point-b}
 \end{figure}
 
@@ -209,7 +181,7 @@ Hint: pay attention to close() dup() calls before and after the point
 \part[5] Point C
 
 \begin{figure}[h] 
-\includegraphics[width=0.8\columnwidth]{figs/point-c}
+\includegraphics[width=0.8\columnwidth]{figs/point-c-temp}
 \label{fig:point-c}
 \end{figure}
 
@@ -226,15 +198,6 @@ Hint: pay attention to close() dup() calls before and after the point
 \begin{parts}
 
 \part[5] What is the first system call executed by xv6? Explain your answer. 
-
-
-\if\answers1
-
-exec(). It's executed by the first process that uses a simple assembly sequence to simply 
-invoke exec() with the arguments needed to reload its address space with the ``init'' process. 
-
-\fi
-
 \vfill
 
 \end{parts}
@@ -251,31 +214,12 @@ invoke exec() with the arguments needed to reload its address space with the ``i
 level 3) is preempted with an interrupt five registers are saved by the
 hardware: ESP, SS, EFLAGS, CS, EIP. Why these five registers have to be saved,
 but others, e.g., EAX, ECX, etc., don't? 
-
-
-\if\answers1 
-
-These five change right away, e.g., SS and ESP is changed to point to the kernel stack, EIP is 
-changed to point to the interrupt handler entry, CS is changed to CS with privilege level 0, EFLAGS might 
-be changed too since some interrupt handlers are configured to disable subsequent interrupts, etc. 
-
-\fi
-
 \vfill 
 
 
 \part[5] During the context switch the code of the \texttt{swtch()} function
 visibly does not save the EIP register. How is it saved and restored then
 during the context switch?  
-
-\if\answers1 
-
-The EIP is pushed on the stack when swtch() is called. Since it's pushed on the stack it's 
-accessible as part of the \texttt{struct context} data structure, and it will be restored 
-into the EIP hardware register when \texttt{swtch()} executes the \texttt{ret} instruction. 
-
-\fi
-
 \vfill 
 
 \newpage
@@ -290,23 +234,6 @@ np->tf->eax = 0
 
 Explain how does this work, i.e., how the ``0'' value ends up being 
 returned by the fork() inside the user process. 
-
-\if\answers1
-For every process, the \texttt{struct trapframe} pointer \texttt{tf} points inside the kernel stack 
-of that process.  \texttt{struct trapframe} is defined in such a way that its fields 
-match the order in which hardware and low-level code of xv6 (i.e., \texttt{vectorXX}, \texttt{alltraps} push 
-and restore values of the hardware registers used by the user process. When the new process is created 
-with \texttt{fork()} the kernel creates the trapframe data structure to make sure it is possible to exit 
-into that process when it is picked by the scheduler. Hence, \texttt{np->tf->eax} points 
-to the exact location of 4 bytes that will be restored into the EAX register on the return path into the user-process when 
-the kernel schedules and context switches into it. Since \texttt{fork()} puts ``0'' into the eax field of the 
-trapframe data structure they will be restored from the kernel stack into the EAX register. It also happens that x86 32bit 
-calling convention used by GCC compiler defines that EAX register contains the value returned from the function. This is how 
-``0'' becomes the return value of the fork system call.  
-
-
-\fi
-
 \vfill 
 
 \part[5] What does the stack look inside the \texttt{bar()} function. Draw a diagram, provide a short description for every value on the stack. 
@@ -317,37 +244,11 @@ int bar(int a, void *buffer, int size) {
 
 }; 
 \end{verbatim} 
-
-
-\if\answers1
-\begin{verbatim}
----------------------------- |
-          size               | stack grows this way
----------------------------- v
-         buffer 
-----------------------------
-           a 
-----------------------------
-      return address
-----------------------------
-        old ebp 
-----------------------------
- possibly local variables 
-  and spilled registers 
-----------------------------
-\end{verbatim} 
-\fi
-
 \vfill 
 
 \iffalse
 
 \part[5] Buffer overflow is an attack that redirects control flow ... 
-
-
-\if\answers1
-\fi
-
 \vfill 
 
 \fi
@@ -379,15 +280,6 @@ of free blocks. Blocks 59 through the end of the disk contain data blocks.
 \part[5] Every file system transaction that changes the file system write one 
 disk block twice. What is this block (what's its block number) and why is it 
 written twice? 
-
-
-\if\answers1 
-
-Block 2 is written twice as it contains the log header. First it is written to commit 
-the log and then it is written to mark the log as clear (after transactions are installed) 
-
-\fi
-
 \vfill 
 
 \end{parts}
@@ -416,18 +308,6 @@ acquire(&ptable.lock);
 \end{verbatim}
 
 Doing this would break sleep. How?
-
-\if\answers1 
-
-It is critical to hold the ptable.lock before releasing the lk lock that is passed as an argument into \texttt{sleep()}. This is essential 
-to avoid the lost wakeup problem --- \texttt{wakeup()} always acquires the ptable.lock before waking up the waiting processes. If the special 
-case code is removed sooner or later the race will occur when the process that is going to sleep will reach the line that releases the lock, at this 
-point it will be preempted by the process that is going to issue the wakeup() call, but since both the \texttt{lk} and the \texttt{ptable.lock} 
-are released it will issue a wakup() call that will be lost by the preempted process that will continue with the sleep when it takes its turn to run. 
-
-\fi
-
-
 \vfill
 
 \part[5] Now Alice decides to put the following code instead of the original \texttt{xchg()} loop in the \texttt{acquire()} function 
@@ -443,15 +323,6 @@ for(;;) {
 \end{verbatim}
 
 She boots xv6 on a multi-processor machine, explain what happens?
-
-\if\answers1 
-
-Now the two lines (and several assembly instructions that are involved in implementing those lines): the one line 
-that checks the \texttt{locked} filed and the line that sets it are not atomic. Sooner or later it will result in a race when 
-two processes will try to acquire the same lock on two different CPUs. 
-
-\fi
-
 \vfill 
 
 \end{parts}

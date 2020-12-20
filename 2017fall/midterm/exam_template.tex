@@ -12,10 +12,14 @@
 \RequirePackage{amssymb, amsfonts, amsmath, latexsym, verbatim, xspace, setspace}
 \RequirePackage{tikz, pgflibraryplotmarks}
 
+%Path relative to the main .tex file 
+\graphicspath{ {./img/} }
+
 % By default LaTeX uses large margins.  This doesn't work well on exams; problems
 % end up in the "middle" of the page, reducing the amount of space for students
 % to work on them.
 \usepackage[margin=1in]{geometry}
+\usepackage{changepage}
 
 
 % Here's where you edit the Class, Exam, Date, etc.
@@ -132,7 +136,7 @@ mapped.
 %
 To make the example realistic, don't forget that xv6 allocates memory for it's
 page table directory and page tables from the kernel memory allocator. 
-
+%
 
 \vfill 
 
@@ -190,8 +194,7 @@ runcmd(struct cmd *cmd)
 not sure if it's correct since she notices that the shell that xv6 implements
 (sh.c in the xv6 source tree) launches the right side right away. Can you come
 up with an example for which Alice's shell fails, while the xv6's is still
-correct?  Explain your answer. 
-
+correct?  Explain your answer.
 \end{parts}
 
 % Question with parts
@@ -205,12 +208,9 @@ correct?  Explain your answer.
 \part[5] Explain the organization and memory layout of the xv6 process. Draw a
 diagram. Explain which protection bits are set by the kernel and explain why
 kernel does it.
-
 \vfill
-
 \part[5] In xv6 individual processes are isolated, specifically they cannot
 access each others memory. Explain how this is implemented. 
-
 \vfill 
 
 \iffalse
@@ -262,7 +262,6 @@ He notices that he initializes *p to 0x0, and explain what goes wrong.
 \part[10] \texttt{KERNBASE} limits the amount of memory a single process can
 use, which might be irritating on a machine with a full 4 GB of RAM. Would
 raising \texttt{KERNBASE} allow a process to use more memory (explain your answer)? 
-
 \vfill
 
 \end{parts}

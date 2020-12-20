@@ -1,0 +1,120 @@
+%% -*- mode: LaTeX -*-
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Define new `ifs' for our alternate document types: draft, preprint, and
+%% techreport.  These flags control various document format and text features.
+%% For instance, RCS tag information is output in drafts.
+%%
+%% By default, we assume that we're producing the ``final'' version of the
+%% document.  I.e., all of these `ifs' are false by default.
+%%
+\newif\ifdraft
+\draftfalse
+\newcommand{\draftonly}[1]{\ifdraft{#1}\fi}
+\newif\ifpreprint
+\preprintfalse
+\newcommand{\preprintonly}[1]{\ifpreprint{#1}\fi}
+\newif\iftechreport
+\techreportfalse
+\newcommand{\techreportonly}[1]{\iftechreport{#1}\fi}
+
+%% Define new `ifs' for our alternate target output formats, PDF and WWW (i.e.,
+%% HTML with auxiliary GIF and CSS files).  These are used in our `hyperref'
+%% configuration file (`hyperref.cfg') and can be used to tweak the generated
+%% document for each output format.
+%%
+%% If neither `\pdftrue' nor `\wwwtrue', then we assume that we're targeting
+%% regular old PostScript or DVI output.
+%%
+% ENE: `\ifpdf' is now set by the `ifpdf' package.
+% \newif\ifpdf
+% \pdffalse
+\newif\ifwww
+\wwwfalse
+
+%% `\com' is for comments.  Text within `\com' is output only in drafts.
+%%
+\newcommand{\com}[1]{\draftonly{\small\em\textbf{Comment:} #1}}
+
+%% More commands for typesetting comments and notes that should appear in at
+%% least some versions of the document (e.g., draft copies).  Note that we use
+%% `\em' rather than `\emph' in these commands because `\emph' can't handle
+%% multi-paragraph contents.
+%%
+\newcommand{\xcite}[1]{\ifdraft{\lbrack{#1}\rbrack}\else\cite{#1}\fi}
+\newcommand{\note}[1]{\draftonly{\small\em\textbf{Note:} #1}}
+\newcommand{\todo}[1]{\draftonly{\small\em\textbf{ToDo:} #1}}
+\newcommand{\xxx}[1]{\draftonly{\small\em\textbf{Fix:} #1}}
+\newcommand{\referee}[2]{\draftonly{\small\em
+                                    \textbf{A referee said:} #1%
+                                    \textbf{We say:} #2}}
+\newcommand{\advice}[2]{\draftonly{\small\em
+                                   \textbf{A reader advised:} #1%
+                                   \textbf{We say:} #2}}
+% \newcommand{\outline}[1]{\draftonly{\textsc{Outline:} {\itshape #1}}}
+\newcommand{\ignore}[1]{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Define certain tags used by the `\autoref' command.  (`\autoref' is provided
+%% as part of the `hyperref' package.)
+%%
+%% These words are `\mbox'ed to prevent line breaks within them, because PDF
+%% doesn't allow line breaks in hyperlinks.  So, without the box, we may get
+%% different line breaks in PS- and PDF-targeted documents.  (BTW, don't use
+%% `\hbox', because the box may start a paragraph.  See Exercise 13.1 in
+%% _The_TeXbook_.)  Actually, even with the boxes, we may *still* get slightly
+%% different line breaks in PS- and PDF-targeted output, but not very
+%% different, and at least the linebreaks don't fall in the reference words.
+
+\newcommand{\chapterautorefname}{\mbox{Chapter}}
+\newcommand{\sectionautorefname}{\mbox{Section}}
+\newcommand{\subsectionautorefname}{\sectionautorefname}
+\newcommand{\subsubsectionautorefname}{\sectionautorefname}
+\newcommand{\figureautorefname}{\mbox{Figure}}
+\newcommand{\subfigureautorefname}{\figureautorefname}
+\newcommand{\tableautorefname}{\mbox{Table}}
+\newcommand{\appendixautorefname}{\mbox{Appendix}}
+\newcommand{\itemautorefname}{\mbox{item}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Here are commands for typesetting the names of various things.
+
+%% `\defterm' is used to typeset the first (defining) use of a new term.
+%%
+\newcommand{\defterm}[1]{\emph{#1}}
+
+%% File names.
+%%
+%% We redefine `\UrlBreaks' not to include `.' so that we won't get line breaks
+%% after the dot that separates a file name and its extension.
+%%
+\newcommand{\file}{\begingroup%
+  \def\UrlBreaks{\do\\\do\/\do\_\do\-\do\+\do\=}%
+  \Url}
+\newcommand{\fileext}[1]{`\texttt{.#1}'}
+\newcommand{\filefont}[1]{{\def\_{\char`\_}\texttt{#1}}}
+
+%% Program names.
+%%
+\newcommand{\program}[1]{\texttt{#1}}
+%%
+% \newcommand{\ld}{\program{ld}}
+% \newcommand{\gcc}{\program{gcc}}
+
+%% Acronyms.
+%%
+\newcommand{\acronym}[1]{\mbox{\textsc{\lowercase{#1}}}}
+
+%% E.g.,
+%% \newcommand{\TCP}{\acronym{TCP}}
+
+%% Various proper names.
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% End of file.

@@ -17,6 +17,9 @@
 % to work on them.
 \usepackage[margin=1in]{geometry}
 \usepackage{verbatim}
+\usepackage{changepage}
+
+\graphicspath{ {./figs/} }
 
 % Here's where you edit the Class, Exam, Date, etc.
 \newcommand{\class}{Principles of Operating Systems}
@@ -116,7 +119,7 @@ receive partial credit.
 Xv6 lays out the file system on disk as follows:
 
 \begin{figure}[h] \centering
-  \includegraphics[width=0.8\columnwidth]{figs/fs}
+  \includegraphics[width=0.8\columnwidth]{tempfig} %not sure how to input fs, so please fix when you can
   \label{fig:ramengine-decomposed-app}
 
 \end{figure}
@@ -150,23 +153,12 @@ $
 
 \part[5] Briefly explain what block 59 contains in the above trace. Why is it written?
 
-\if\answers1
-
-Block 59 contains the data for the ``/'' directory inode. Since Ben delets the file from the ``/'' the directory inode is updated. 
-
-\fi
-
 \vfill
 
 %\newpage
 
 \part[5] What does block 5 contain? Why is it written?
 
-\if\answers1
-
-Block 5 contains the copy of block 58 in the log. Xv6 file system frist writes the log to ensure atomicity of all file system updates, then it copies the log to the actual data blocks. 
-
-\fi
 
 \vfill
 
@@ -176,25 +168,8 @@ Block 5 contains the copy of block 58 in the log. Xv6 file system frist writes t
 first time and what are the bytes? (To get the full credit you have to explain
 what block 2 contains, and why each non-zero byte is written).   
 
-\if\answers1
 
-Block 2 contains the header of the log, or more specifically an integer (4 bytes) that contains the size of the log, and then an array of integers (4 bytes each) of size LOGSIZE that keep the actual block numbers for the blocks in the log. The log header data structure that is written to block 2 is defined as:
-
-\begin{verbatim}
-// Contents of the header block, used for both the on-disk header block
-// and to keep track in memory of logged block# before commit.
-struct logheader {
-  int n;
-  int block[LOGSIZE];
-};
-\end{verbatim}
-
-In our example, n is equal to 3, an then 3 integers are 59, 32, and 58. The total of 4 integers or 16 non-zero bytes are written to block 2. 
-
-If you want to be extra pedantic you can reason about non-zero integers that might be in the block array from previous log transactions. In practice, on a clean xv6 file system, the only one transaction that happened before wrote 2 blocks creating the console device. So the rest of the array is clean anyway. 
- 
 \vfill
-\fi
 
 \end{parts}
 
@@ -209,12 +184,6 @@ If you want to be extra pedantic you can reason about non-zero integers that mig
 get rid of the acquire() and release() functions, since after all they take
 some time but seem unnecessary in a single-CPU scenario.  Explain if removal of
 these functions is fine. 
-
-\if\answers1
-
-No. In addition to acquire a spinlock to enter a critical section, \texttt{acquire()} disables interrupts to prevent an interrupt from entering the critical section and changing one of the protected data strutures concurrently with the process and other interrupts. 
-
-\fi
 
 
 \vfill
@@ -245,25 +214,6 @@ int main(int argc, char *argv[]) {
   should explain why this error happened, what does the error values mean and
   how Bob can fix his code)
 
-\if\answers1
-
-Bob allocates an array of 4096 bytes on the stack 
-
-\begin{verbatim}
-
-char buf[PGSIZE] = {0};
-
-\end{verbatim}
-
-
-\texttt{Buf} is a local variable. It is allocated on the stack. Since xv6 stack is only
-one page (4096 bytes), and main already has 47 bytes on the stack
-(0x1fff-0x1fd0), the code tries to access the first element of the buffer when the compiler 
-generates the code that initializes \texttt{buf} with zeroes. The first element of 
-the buffer is actually on the guard page (0x1fd0).  Hence, Bob's
-code triggers an exception and xv6 kills the process reporting a violation. 
-
-\fi
 
   \vfill
 
@@ -297,13 +247,12 @@ int main(int argc, char *argv[]) {
 
 \begin{parts}
   \part[5] Explain what is going on and why Ben's program crashes. 
+
   \vfill
 
-\if\answers1 
-
-\fi
 
   \part[5] Ben puts the code of the test() function inside a new system call trying to see if it works inside the kernel. Will it work (explain your answer)? 
+
   \vfill
 
 \end{parts}
@@ -374,13 +323,16 @@ main() {
 
 \begin{parts}
   \part[5] What are all possible outputs of this program? Explain your answer.
+
   \vfill
 
 \end{parts}
 
-%\newpage
+\newpage
 \addpoints
 \question Process creation
+
+
 While editing the xv6 code, Jimmy accidentally erases the below section of
 code under fork() function on proc.c
 \begin{verbatim}
@@ -390,12 +342,9 @@ code under fork() function on proc.c
 \end{verbatim}
 
 \begin{parts}
-\part[5] Explain what the above section of code does?
-
-  \vfill
-\newpage
 \part[5] Explain what can go wrong without this piece of code? Quote a concrete example and explain
   the incorrect behavior.
+
   \vfill
 \end{parts}
 

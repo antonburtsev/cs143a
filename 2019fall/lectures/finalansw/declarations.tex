@@ -1,0 +1,71 @@
+%% -*- mode: LaTeX -*-
+%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifwww
+  \usepackage[tex4ht,html]{tex4ht}
+\else
+  \usepackage{sigplanconf-hacks}
+\fi
+
+% \usepackage{cite} % currently prevents `hyperref' from linking references.
+\usepackage[T1]{fontenc} % ...so we can get curly braces in Helvetica.
+\usepackage[final]{graphicx}
+\usepackage{ifpdf}
+\usepackage{paralist}
+\usepackage{url}
+%% The following must come *after* the `\urldef's:
+%% \usepackage{hyperref}
+
+%% Use the Times, Helvetica, and Computer Modern Typewriter typefaces.
+%% Set `b' as the boldface series to avoid font shape warnings from LaTeX.
+%%
+\renewcommand{\rmdefault}{ptm}
+\renewcommand{\sfdefault}{phv}
+\renewcommand{\ttdefault}{cmtt}
+\renewcommand{\bfdefault}{b}
+
+%% Define some relevant URLs.
+\urldef{\fluxurl}\url{http://www.cs.utah.edu/flux/}
+
+%% This has to come *after* the `\urldef's.
+\usepackage{hyperref}
+%% XXX --- `\usepackage{thumbpdf}' doesn't need to come after?
+%% Don't bother with this for now...
+% \ifpdf
+%   \usepackage[pdfmark]{thumbpdf}
+% \fi
+
+\ifpdf
+  %% In PDF versions of this paper, prefer PDF graphics to PNG graphics.
+  %% The default seems to be the other way around.
+  \DeclareGraphicsExtensions{.pdf,.png}
+\fi
+
+
+\usepackage{bbold}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Tweak the float placement rules to be very liberal.
+%%
+\renewcommand{\topfraction}{1}
+\renewcommand{\dbltopfraction}{1}
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0}
+%
+\renewcommand{\floatpagefraction}{.90} % for one-column
+\renewcommand{\dblfloatpagefraction}{.90} % for two-.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Set up 'named' notes like so:
+\newcommand{\rr}[1]{\mynote{Rob}{#1}}
+\newcommand{\john}[1]{\mynote{John}{#1}}
+\newcommand{\anton}[1]{\mynote{Anton}{#1}}
+
+\newcommand{\xcap}{XCap}
+
+
+%% End of file.

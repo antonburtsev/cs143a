@@ -1,0 +1,17 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.pdf
+*.ps
+*-www.4ct
+*-www.4tc
+*-www.css
+*-www*.html
+*-www.idv
+*-www.lg
+*-www.tmp
+*-www.xref
+*~
+*.swp
